@@ -1,0 +1,96 @@
+
+.data
+0x00405000  94 7e b2 5d a4 71 00 00 48 65 72 65 20 69 73 20
+0x00405010  74 68 65 20 73 75 6d 2c 20 70 6c 75 73 20 61 6e
+0x00405020  20 65 78 74 72 61 20 33 30 30 68 20 74 6f 20 62
+0x00405030  6f 6f 74 21 20
+
+.code
+0x00401010  66 c7 05 06 50 40 00 00 00 66 81 05 06 50 40 00
+0x00401020  00 03 b9 06 00 00 00 be 00 50 40 00 66 0f b6 06
+0x00401030  66 01 05 06 50 40 00 46 e2 f2 ba 08 50 40 00 e8
+0x00401040  14 0f 00 00 0f b7 05 06 50 40 00 e8 2d 0c 00 00
+0x00401050  e8 00 01 00 00 6a 00 e8 d6 0f 00 00
+
+------------------------------------------------------------
+
+Detailed Code Disassembly:
+
+00401010:
+
+MOV total_sum,0
+66 C7 05		; C7 for MOV immediate word to r/m word (pg. 345, 244)
+06 50 40 00		; Little Endian DWORD address of total_sum
+00 00			; Hex for 0 as an immediate WORD
+
+00401019:
+
+ADD total_sum, 300h
+66 81 05 		; 81 for ADD immediate word to r/m word (pg. 261, 244)
+06 50 40 00		; Little Endian DWORD address of total_sum
+00 03			; Hex for 300h as an immediate WORD (Little Endian)
+
+00401022:
+
+MOV ECX, LENGTHOF small_summands
+b9			; B8+1 for MOV into ECX immediate DWORD (pg. 345, 246)
+06 00 00 00		; Immediate DWORD = 6 (Little Endian)
+
+00401027:
+
+MOV ESI, OFFSET small_summands
+be			; B8+6 for MOV into ESI immediate DWORD (pg. 345, 246)
+00 50 40 00		; Little Endian DWORD address of small_summands
+
+0040102C:
+
+MOVZX AX, BYTE PTR [ESI]
+66 0f b6 06		; 0F B6 for MOVZX r/m 8 into WORD register (pg. 351, 244)
+
+00401030:
+
+add total_sum, AX	
+66 01 05		; 01 for ADD  word register to r/m word (pg. 261, 244)
+06 50 40 00		; Little Endian DWORD address of total_sum
+
+00401037:
+
+INC ESI
+46			; 40+6 for INC ESI (pg. 303 and 246)
+
+00401038:
+
+LOOP L1
+e2			; E2 for LOOP relative 8 (pg. 340)
+f2			; Go *back* 14 bytes (f2h = -14 decimal)
+
+0040103A:
+
+MOV EDX, OFFSET msg
+ba			; B8+2 for MOV into EDX immediate DWORD (pg. 345, 246)
+08 50 40 00		; Little Endian DWORD address of msg
+
+0040103F:
+
+CALL WriteString
+e8			; E8 for CALL near procedure (pg. 275)
+14 0f 00 00		; Jumps ahead 0F14h=3860 bytes (where Irvine procedure has been added).
+
+00401044:
+
+movzx eax, total_sum
+0f b7 05		; 0F B7 for MOVZX into EAX memory WORD (pg. 351, 244)
+06 50 40 00		; Little Endian DWORD address of total_sum
+
+0040104B:
+
+Call WriteDec
+e8			; E8 for CALL near procedure (pg. 275)
+2d 0c 00 00		; Jumps ahead 0c2dh=3117 bytes (where Irvine procedure WriteDec has been added).
+
+00401050:
+
+Call Crlf
+e8			; E8 for CALL near procedure (pg. 275)
+00 01 00 00		; Jumps ahead 256 bytes ("Crlf" is much earlier in the alphabetical include file).
+
