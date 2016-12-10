@@ -1,0 +1,52 @@
+TITLE worksheet 4
+
+; Description: Solution for worksheet 4 number 1
+; Author: Amanda Steidl
+; Date: Oct. 6, 2014
+
+INCLUDE Irvine32.inc
+; This directive imports various macros and ASM procedures (functions)
+; that are in the Irvine library. 
+
+.data
+	strBegin BYTE "Programming in Assembly makes me "
+	ending1 BYTE "unhappy."
+	ending2 BYTE "happy!"
+	concat =$- strBegin + ending2 + 1
+
+.code
+
+main proc
+
+	MOV ECX, LENGTHOF strBegin			;moves 33, or 21h into ECX to start the official counter
+	MOV ESI, 0							;ESI will be used to traverse the string
+
+	copyBegin:
+		MOV AL, [strBegin + ESI]		;moves a singular letter into AL each time through the loop
+		MOV [concat + ESI], AL			;moves the value from AL into concat
+		INC ESI							;increases ESI to move into the next letter
+	LOOP copyBegin						;returns to the top of the loop "copyBegin"
+
+	MOV ECX, LENGTHOF ending2			;moves the length of ending2 in hex into ECX
+	MOV EBX, 0							;moves 0 into EBX, because ESI will still hold the counter for concat
+
+	copyEnding:
+		MOV AL, [ending2 + EBX]			;ending2 will utilize EBX for the traversal through ending2
+		MOV [concat + ESI], AL			;concat will still utilize ESI in order to traverse through the end of concat's allocated space
+		INC EBX							;increase EBX == next ending2's character
+		INC ESI							;increase ESI == next "slot" for concat
+	LOOP copyEnding
+
+	MOV AL, 0h							;since ESI is increased at the end of Loop, we can move
+	MOV [concat + ESI], AL				;0h for the null terminator right away.
+
+	MOV EDX, OFFSET concat				;move concat's address into EDX for WriteString
+
+	CALL WriteString		; Call Irvine procedure to output.
+	Call Crlf				; Irvine again, for carriage return.
+
+	exit
+
+main endp
+
+end main

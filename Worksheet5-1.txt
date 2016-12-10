@@ -1,0 +1,104 @@
+TITLE worksheet 5
+
+; Description: Solution for worksheet 5 number 1
+; Author: Amanda Steidl
+; Date: Oct. 9, 2014
+
+INCLUDE Irvine32.inc
+; This directive imports various macros and ASM procedures (functions)
+; that are in the Irvine library. 
+
+
+.data
+	welcomeStr		BYTE	"Welcome to ASM Multiplier!", 0
+	promptFirstInt	BYTE	"Please enter the first positive integer: ", 0
+	promptSecInt	BYTE	"Please enter the second positive integer: ", 0
+	inputFirstInt	DWORD	?
+	inputSecInt		DWORD	?
+	total			DWORD	?
+	outputMsg		BYTE	"The product of  ", 0
+	outputMsg1		BYTE	" and ", 0
+	outputMsg2		BYTE	" is ", 0
+	outputMsg6		BYTE	"The product of  and  is " , 0
+
+.code
+main proc
+	
+	;-------------------------------------------------
+	; Prompt user for integers and receive it.
+	; Store first in EAX, second in EBX
+	;-------------------------------------------------
+	Call ClrScr
+	MOV EDX, OFFSET welcomeStr
+	Call WriteString
+	Call Crlf
+
+	MOV EDX, OFFSET promptFirstInt		;moves address of promptFirstInt into EDX in order to "print"
+	Call WriteString					;prints the string located on the EDX reg
+	MOV EDX, OFFSET inputFirstInt		;moves address of inputFirstInt to EDX ..
+	Call ReadDec						;reads a decimal integer provided by the user into the EAX register...
+	MOV inputFirstInt, EAX				;will put value int EAX (typed by the user) into inputFirstInt [i.e. 00000032]
+
+	MOV EDX, OFFSET promptSecInt
+	Call WriteString
+	MOV EDX, OFFSET inputSecInt
+	Call ReadDec
+	MOV inputSecInt, EAX				;will put value typed by the user into inputFirstInt [i.e. 00000003]
+	
+	MOV EAX, OFFSET inputFirstInt		;moves the address of inputFirstInt into the EAX register to be used in the procedure
+	MOV EBX, OFFSET inputSecInt			;moves the address of inputSecInt into the EAX register to be used in the procedure
+	
+	Call multiplyProc					;call procedure
+	MOV total, EAX						;total calculated by multiplyProc moved into total variable
+
+
+	MOV EDX, OFFSET outputMsg
+	Call WriteString
+
+	MOV EAX, [inputFirstInt]
+	Call WriteDec
+
+	MOV EDX, OFFSET outputMsg1
+	Call WriteString
+
+	MOV EAX, [inputSecInt]
+	Call WriteDec
+
+	MOV EDX, OFFSET outputMsg2
+	Call WriteString
+
+	MOV EAX, [total]
+	Call WriteDec
+	Call Crlf
+
+	Call WaitMsg
+
+	exit
+
+main ENDP
+
+multiplyProc	PROC
+;Description: adds number in EAX, EBX number of times
+;Receives: EAX = first integer, EBX = second integer
+;Returns: total number in EAX.
+;Calls: nothing.
+
+PUSH ECX			;push ECX onto the stack
+PUSH EDX
+
+MOV ECX, [EBX]		;move value @ EBX to ECX b/c will need to loop through [EBX] number of times
+DEC ECX
+MOV EDX, [EAX]
+
+L1:
+	ADD EDX, [EAX]	;Adds value at EBX to EDX
+LOOP L1
+
+MOV EAX, EDX
+
+POP EDX
+POP ECX				;"pop" ECX off
+RET
+multiplyProc	ENDP
+
+end main

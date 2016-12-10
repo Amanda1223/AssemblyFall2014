@@ -1,0 +1,54 @@
+TITLE worksheet 4
+
+; Description: Solution for worksheet 4 number 3
+; Author: Amanda Steidl
+; Date: Oct. 7, 2014
+
+INCLUDE Irvine32.inc
+; This directive imports various macros and ASM procedures (functions)
+; that are in the Irvine library. 
+
+.data
+	square_array	BYTE	1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144
+	COUNT = LENGTHOF square_array
+	sum_sqrs		WORD	0
+	alt_sum_sqrs	SWORD	0
+.code
+
+main proc
+	
+	MOV EAX, OFFSET [sum_sqrs]				;move offfset to watch directly as it happens [easier for me]
+
+	MOV ECX, COUNT
+	MOV ESI, 0
+
+	SUMALL:
+		MOVZX BX, [square_array + ESI]		;BX will contain the number at the position ESI
+		ADD sum_sqrs, BX					;will add the value contained at AL to sum_squares
+		INC ESI
+	LOOP SUMALL
+
+	MOV EAX, OFFSET [alt_sum_sqrs]			;move offfset to watch directly as it happens [easier for me]
+
+	MOV ECX, COUNT/2						;will use the half of LengthOF square_array
+	MOV ESI, 0								;ESI will go through the array from the first postion
+
+	ALTSUM:
+		MOVZX BX, [square_array + ESI]		;moves the square_array value onto BX
+		ADD alt_sum_sqrs, BX				;adds the value at BX to alt_sum_sqrs
+		INC ESI								;increases ESI to next position, so can subtract
+		MOVZX BX, [square_array + ESI]		;moves the next position [which is negative] to BX
+		SUB alt_sum_sqrs, BX				;therefore we need to subtract the value at BX from alt_sum_squares
+		INC ESI								;move to the next value
+	LOOP ALTSUM								;go back to the beginning of the loop
+
+
+	MOV EAX, DWORD PTR sum_sqrs
+	MOV EDX, DWORD PTR alt_sum_sqrs
+	CALL WriteDec
+
+	exit
+
+main endp
+
+end main

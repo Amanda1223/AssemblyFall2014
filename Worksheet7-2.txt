@@ -1,0 +1,62 @@
+TITLE Worksheet7 
+
+; Description: Solution for worksheet 7 number 2
+; Author: Amanda Steidl
+; Date: Nov. 4, 2014
+; Worksheet7-2.asm
+INCLUDE Irvine32.inc
+
+.data
+string BYTE "The quick brown fox jumps over the lazy dog.", 0
+
+.code
+main Proc
+
+;Set up portable procedure
+
+MOV ESI, OFFSET string
+
+CALL diagonal
+Call Crlf
+     
+
+exit 
+main ENDP
+
+;--------------------------------------------------------------------------------------
+printDiagonal PROC
+; Description: Takes the string, and assembles the words in a diagnol pattern across
+;	the screen...
+; Recieves: ESI = the OFFSET of the string (str).
+; Returns : nothing.
+;--------------------------------------------------------------------------------------
+PUSHAD
+
+;will start from top left corner...
+;use AL for writeChar...
+;first clear screen
+Call ClrScr
+
+Top:						;start loop		[Top]
+MOV AL, [ESI]				;parse through string character by character
+CMP AL, 0
+  JE ExitProc				;exit procedure only taken when reached null byte
+CMP AL, 20h					;20h is the 'space' character
+  JE next_Line				;if equal to 20h, then move to next line and indent
+Call WriteChar
+INC ESI
+  JMP Top					;keep writing characters until conditions are met
+next_Line:
+   INC DL					;remember DL is 'X', DH is 'Y'
+   INC DH					;increase both for DL to go right, and DH to go down
+   Call Gotoxy				;Gotoxy to move the cursor
+   INC ESI					;increase esi to go to next char
+  JMP Top
+ExitProc:
+
+POPAD
+
+RET
+printDiagonal ENDP
+
+end main

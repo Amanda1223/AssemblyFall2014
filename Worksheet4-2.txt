@@ -1,0 +1,36 @@
+TITLE worksheet 4
+
+; Description: Solution for worksheet 4 number 2
+; Author: Amanda Steidl
+; Date: Oct. 6, 2014
+
+INCLUDE Irvine32.inc
+; This directive imports various macros and ASM procedures (functions)
+; that are in the Irvine library. 
+
+.data
+	word_ints	WORD 523Bh, 0A419h, 26h, 9E5h, 87ECh, 410Fh, 396h
+	big_end		BYTE LENGTHOF word_ints DUP(?)				
+.code
+
+main proc
+
+	MOV EDX, OFFSET big_end		;moves address of big_end into EDX
+
+	MOV ECX, LENGTHOF big_end	;moves length of big_end into ECX
+	MOV ESI, 0					;moves 0 into ESI for walking through word_ints
+
+	toBigEnd:
+		MOV AL, BYTE PTR [word_ints + ESI]						;AL will contain the value of word_int as a BYTE .. [i.e. 1st: 3B]
+		MOV [big_end + (ESI + TYPE big_end)], AL				;the value in AL will be moved into the second place in big_end [i.e. 003B]
+		MOV AL, BYTE PTR [word_ints + (ESI + TYPE big_end)]		;AL will contain the second value of word_int as a BYTE .. [i.e. 2nd: 52]
+		MOV [big_end + ESI], AL									;move that value into big_end [i.e. 523B]
+		ADD ESI, (TYPE word_ints)								;add two to ESI (instead of increasing it twice)
+	LOOP toBigEnd
+
+
+	exit
+
+main endp
+
+end main

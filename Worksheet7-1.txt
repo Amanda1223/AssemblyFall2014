@@ -1,0 +1,102 @@
+TITLE worksheet 7
+
+; Description: Solution for worksheet 7 number 1
+; Author: Amanda Steidl
+; Date: Oct. 11, 2014
+
+INCLUDE Irvine32.inc
+
+MAXCHARS = 25
+
+.data
+	promptUser1	BYTE	"Enter the first word: ", 0
+	promptUser2	BYTE	"Enter the second word: ", 0
+	str1		BYTE	MAXCHARS DUP(0)
+	str2		BYTE	MAXCHARS DUP(0)
+	outputMsg	BYTE	"The correct lexicographic order for the words entered is:" , 0
+
+.code
+main proc
+	
+	Call ClrScr
+	MOV EDX, OFFSET promptUser1
+	Call WriteString
+	MOV EDX, OFFSET str1	;offset of string to be written to
+	MOV ECX, SIZEOF str1	;max size of string
+	Call ReadString			;automatically null terminates string
+
+	MOV EDX, OFFSET promptUser2
+	Call WriteString
+	MOV EDX, OFFSET str2	;offset of string to be written to
+	MOV ECX, SIZEOF str2	;max size of string
+	Call ReadString
+
+
+	;--------------------------------------------------------
+	;Set up portable procedure
+	;--------------------------------------------------------
+	MOV EAX, OFFSET str1
+	MOV EBX, OFFSET str2
+	Call sortPair
+
+	MOV EDX, OFFSET outputMsg
+	Call WriteString
+	Call Crlf
+	MOV EDX, EAX
+	Call WriteString
+	Call Crlf
+	MOV EDX, EBX
+	Call WriteString
+
+
+	Call Crlf
+
+	exit
+
+main ENDP
+
+;-------------------------------------------------------------------------------
+;sortPair
+;Description: compare each letter in the strings and switch necessary to output
+;correctly
+;Receives:	EAX = the offset of the first string inputted
+;			EBX = the offset of the second string inputted
+;-------------------------------------------------------------------------------
+sortPair	PROC
+	PUSH ECX
+	PUSH EAX
+	PUSH EBX
+
+
+	Top:
+		MOV CL, [EAX]
+		CMP CL, 0			;tests if [eax] is already 0
+		JE NoSwitch
+		CMP CL, [EBX]
+		JNE switchOrNo		;if [eax] != [ebx] then see which is > , <=
+		INC EAX				;else if [eax] == [ebx], and does not == 0 increment
+		INC EBX
+	JMP Top
+
+	switchOrNo:
+		JBE noSwitch	;if [EAX] is "below" or less than [EBX], then it's okay because
+						;that means EAX is before EBX in the alphabet
+						;this will also catch the [ebx] == 0 case...
+
+		;else if EAX > EBX : needs to switch EAX with EBX, to print
+
+		POP EAX			;easy enough, pop them in the reverse order and OFFSET EAX <--> EBX
+		POP EBX
+	JMP ExitProc		;reminder: do not use the word exit......
+
+	noSwitch:			;normal pop order
+	POP EBX
+	POP EAX
+
+	ExitProc:
+	POP ECX
+
+RET
+sortPair	ENDP
+
+end main

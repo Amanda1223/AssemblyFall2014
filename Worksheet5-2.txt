@@ -1,0 +1,82 @@
+TITLE worksheet 5
+
+; Description: Solution for worksheet 5 number 2
+; Author: Amanda Steidl
+; Date: Oct. 11, 2014
+
+INCLUDE Irvine32.inc
+; This directive imports various macros and ASM procedures (functions)
+; that are in the Irvine library. 
+
+MAXCHARS = 255
+
+.data
+	promptChar1		BYTE	"Enter the first character: ", 0
+	promptChar2		BYTE	"Enter the last character: ", 0
+
+.code
+main proc
+	
+	Call ClrScr
+
+	top:
+	;-------------------------------------------------
+	; Prompt user for char1 and receive it.
+	;-------------------------------------------------
+	MOV EDX, OFFSET promptChar1
+	CALL WriteString
+	CALL ReadChar
+	CALL WriteChar
+	MOV BL, AL				;stores value in BL
+	CALL Crlf
+	;-------------------------------------------------
+	; Prompt user for char2 and receive it.
+	;-------------------------------------------------
+	MOV EDX, OFFSET promptChar2
+	CALL WriteString
+	CALL ReadChar			;automatically will store char in AL
+	CALL WriteChar
+	CALL Crlf
+	;-------------------------------------------------
+	; Call the charactersInbetween procedure
+	;-------------------------------------------------
+	Call charactersInbetween
+
+	Call Crlf
+	Call Crlf
+
+	JMP top
+
+	exit
+
+main ENDP
+
+charactersInbetween	PROC
+;-------------------------------------------------------------------------------
+;Description: calculates distance between two chars, then saves all chars into
+;outMsg...
+;Receives: AL = char2, BL = char1
+;Returns: nothing.
+;Calls: nothing.
+;-------------------------------------------------------------------------------
+
+PUSH ECX
+
+
+SUB AL, BL                  ;Subtracts BL from AL and stores value in AL
+ADD AL, 1					;value above + 1
+MOVSX ECX, AL				;Moves value into ECX ["loop counter"]
+MOV AL, BL					;Moves BL ["start value"] into AL
+
+L1:
+	Call WriteChar	
+	INC AL
+LOOP L1
+
+
+POP ECX
+
+RET
+charactersInbetween	ENDP
+
+end main
